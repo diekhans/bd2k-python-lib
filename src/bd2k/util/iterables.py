@@ -132,34 +132,34 @@ class concat( object ):
 
 
 # noinspection PyPep8Naming
-class crush( object ):
-    """
-    >>> list(crush([]))
-    []
-    >>> list(crush([[]]))
-    []
-    >>> list(crush([1]))
-    [1]
-    >>> list(crush([[1]]))
-    [1]
-    >>> list(crush([[[]]]))
-    []
-    >>> list(crush([1,(),['two'],([3, 4],),{5}]))
-    [1, 'two', 3, 4, 5]
+# class crush( object ):
+#     """
+#     >>> list(crush([]))
+#     []
+#     >>> list(crush([[]]))
+#     []
+#     >>> list(crush([1]))
+#     [1]
+#     >>> list(crush([[1]]))
+#     [1]
+#     >>> list(crush([[[]]]))
+#     []
+#     >>> list(crush([1,(),['two'],([3, 4],),{5}]))
+#     [1, 'two', 3, 4, 5]
 
-    >>> list(crush(1))
-    Traceback (most recent call last):
-    ...
-    TypeError: 'int' object is not iterable
+#     >>> list(crush(1))
+#     Traceback (most recent call last):
+#     ...
+#     TypeError: 'int' object is not iterable
 
-    >>> list(crush('123'))
-    ['1', '2', '3']
+#     >>> list(crush('123'))
+#     ['1', '2', '3']
 
-    The above is a bit of an anomaly since strings occurring inside iterables are not broken up:
+#     The above is a bit of an anomaly since strings occurring inside iterables are not broken up:
 
-    >>> list(crush(['123']))
-    ['123']
-    """
+#     >>> list(crush(['123']))
+#     ['123']
+#     """
 
     def __init__( self, iterables ):
         super( crush, self ).__init__( )

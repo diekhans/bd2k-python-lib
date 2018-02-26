@@ -1,4 +1,4 @@
-from builtins import object
+import six
 from contextlib import contextmanager
 import sys
 
@@ -34,8 +34,7 @@ class panic( object ):
     def __exit__( self, *exc_info ):
         if self.log is not None and exc_info and exc_info[ 0 ]:
             self.log.warn( "Exception during panic", exc_info=exc_info )
-        exc_type, exc_value, traceback = self.exc_info
-        raise exc_type, exc_value, traceback
+        six.reraise(*self.exc_info)
 
 
 class RequirementError( Exception ):

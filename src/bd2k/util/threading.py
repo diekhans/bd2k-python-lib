@@ -1,16 +1,20 @@
 from __future__ import absolute_import
+from __future__ import print_function
+import six
 from builtins import range
 import sys
 import threading
 
 
-class BoundedEmptySemaphore( threading._BoundedSemaphore ):
+class BoundedEmptySemaphore( threading.BoundedSemaphore ):
     """
     A bounded semaphore that is initially empty.
+    Note: the verbose option is deprecated and ignored.
     """
 
     def __init__( self, value=1, verbose=None ):
-        super( BoundedEmptySemaphore, self ).__init__( value, verbose )
+        # note: py3 doesn't have verbose
+        super( BoundedEmptySemaphore, self ).__init__( value )
         for i in range( value ):
             assert self.acquire( blocking=False )
 
@@ -62,7 +66,7 @@ class ExceptionalThread( threading.Thread ):
         if not self.is_alive( ) and self.exc_info is not None:
             type, value, traceback = self.exc_info
             self.exc_info = None
-            raise type, value, traceback
+            six.reraise(type, value, traceback)
 
 
 # noinspection PyPep8Naming
@@ -71,7 +75,7 @@ class defaultlocal( threading.local ):
     Thread local storage with default values for each field in each thread
 
     >>> l = defaultlocal( foo=42 )
-    >>> def f(): print l.foo
+    >>> def f(): print(l.foo)
     >>> t = threading.Thread(target=f)
     >>> t.start() ; t.join()
     42

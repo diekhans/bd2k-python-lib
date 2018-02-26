@@ -1,5 +1,6 @@
 from __future__ import absolute_import
-
+import six
+from builtins import range
 import datetime
 import grp
 import pwd
@@ -109,7 +110,7 @@ def ilen( it ):
     """
     Return the number of elements in an iterable
 
-    >>> ilen(xrange(0,100))
+    >>> ilen(range(0,100))
     100
     """
     return sum( 1 for _ in it )
@@ -225,3 +226,10 @@ def less_strict_bool( x ):
         return x
     else:
         return strict_bool( x )
+
+def bytearray2str( ba ):
+    """python 2/3 compatible conversions of byte array to string"""
+    if six.PY2:
+        return str( ba )
+    else:
+        return ba.decode( 'latin-1' )

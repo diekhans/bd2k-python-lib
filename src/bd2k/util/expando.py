@@ -1,3 +1,9 @@
+
+def _py23JsonCompat( d ):
+    """Hack to make expected JSON results look the same in py2/3, as unicode strings
+    are formatted differently in the doc tests"""
+    return {str(k): d[k] for k in d.keys()}
+
 class Expando(dict):
     """
     Pass inital attributes to the constructor:
@@ -24,13 +30,13 @@ class Expando(dict):
     >>> import json
     >>> s='{"foo":42}'
     >>> o = json.loads(s,object_hook=Expando)
-    >>> o
-    {u'foo': 42}
+    >>> _py23JsonCompat(o)
+    {'foo': 42}
     >>> o.foo
     42
     >>> o.bar = 'hi'
-    >>> o
-    {u'foo': 42, 'bar': 'hi'}
+    >>> _py23JsonCompat(o)
+    {'foo': 42, 'bar': 'hi'}
 
     And since Expando is a dict, it serializes back to JSON just fine:
 
@@ -114,4 +120,3 @@ class MagicExpando(Expando):
             child = self.__class__( )
             self[name] = child
             return child
-

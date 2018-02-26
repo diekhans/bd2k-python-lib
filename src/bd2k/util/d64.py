@@ -20,16 +20,16 @@ from __future__ import division
 # Ported from JS found at https://github.com/dominictarr/d64
 
 
-
-from builtins import str
+import six
 from builtins import range
-from builtins import object
 from past.utils import old_div
+from . import bytearray2str
+
 class D64( object ):
     def __init__( self, special_chars ):
         super( D64, self ).__init__( )
-        alphabet = 'PYFGCRLAOEUIDHTNSQJKXBMWVZpyfgcrlaoeuidhtnsqjkxbmwvz1234567890'
-        self.alphabet = bytearray( sorted( alphabet + special_chars ) )
+        alphabet = b'PYFGCRLAOEUIDHTNSQJKXBMWVZpyfgcrlaoeuidhtnsqjkxbmwvz1234567890'
+        self.alphabet = bytearray( sorted( alphabet + six.b( special_chars ) ) )
         self.lookup = bytearray( 255 )
         for i in range( 64 ):
             code = self.alphabet[ i ]
@@ -55,7 +55,7 @@ class D64( object ):
         j = 0
         a = self.alphabet
         for i in range( l ):
-            v = ord( data[ i ] )
+            v = six.indexbytes( data, i )
             r = i % 3
             if r == 0:
                 s[ j ] = a[ v >> 2 ]
@@ -76,20 +76,20 @@ class D64( object ):
         if l % 3:
             s[ j ] = a[ hang ]
 
-        return str( s )
+        return bytearray2str( s )
 
     def decode( self, e ):
         """
         >>> decode = standard.decode
-        >>> decode('')
+        >>> bytearray2str(decode(''))
         ''
-        >>> decode('..')
+        >>> bytearray2str(decode('..'))
         '\\x00'
-        >>> decode('..3')
+        >>> bytearray2str(decode('..3'))
         '\\x00\\x01'
-        >>> decode('..31')
+        >>> bytearray2str(decode('..31'))
         '\\x00\\x01\\x02'
-        >>> decode('..31.kF40VR')
+        >>> bytearray2str(decode('..31.kF40VR'))
         '\\x00\\x01\\x02\\x03\\x04\\x05\\x06\\x07'
         """
         n = len( e )

@@ -17,11 +17,11 @@ from __future__ import division
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Inspired by Dominic Tarr's JavaScript at https://github.com/dominictarr/d64
-
-from builtins import str
+import six
 from builtins import range
-from builtins import object
 from past.utils import old_div
+from . import bytearray2str
+
 class D32( object ):
     """
     Base32 encoding and decoding without padding, and using an arbitrary alphabet.
@@ -29,7 +29,7 @@ class D32( object ):
 
     def __init__( self, alphabet ):
         super( D32, self ).__init__( )
-        self.alphabet = bytearray( alphabet )
+        self.alphabet = bytearray( six.b(alphabet) )
         self.lookup = bytearray( 255 )
         for i in range( 32 ):
             self.lookup[ self.alphabet[ i ] ] = i
@@ -48,6 +48,8 @@ class D32( object ):
         >>> encode('\\0\\1\\2\\3\\4\\5')
         '222k62s62o'
         """
+        if six.PY3 and isinstance(d, six.string_types):
+            d = b(d)
         m = len( d )
         n = old_div((m * 8 + 4), 5)
         padding = 8 - n % 8
@@ -57,7 +59,7 @@ class D32( object ):
 
         while i < m:
             if m - i < 5:
-                g = bytearray( d[ i: ] + '\0' * (5 - (m - i)) )
+                g = bytearray( d[ i: ] +  b'\0' * (5 - (m - i)) )
             else:
                 g = bytearray( d[ i:i + 5 ] )
             # bit              1          2          3
@@ -74,7 +76,7 @@ class D32( object ):
             e[ j + 7 ] = a[ g[ 4 ] & 31 ]
             j += 8
             i += 5
-        return str( e[ :-padding ] )
+        return bytearray2str( e[ :-padding ] )
 
     def decode( self, e ):
         """
@@ -84,7 +86,7 @@ class D32( object ):
         # '\\x00\\x01\\x02\\x03\\x04\\x05'
         # >>> decode('222k62s6')
         # '\\x00\\x01\\x02\\x03\\x04'
-        >>> decode('zw')
+        >>> bytearray2str(decode('zw'))
         '\\xff'
         """
         n = len( e )

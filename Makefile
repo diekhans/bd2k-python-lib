@@ -27,7 +27,7 @@ The 'test' target runs unit tests. Set the 'tests' variable to run a particular 
 The 'pypi' target publishes the current commit of this project to PyPI after enforcing that the
 working copy and the index are clean, and tagging it as an unstable .dev build.
 
-The 'pypi_stable' target is like 'pypi' except that it doesn't tag the build as
+The 'pypi_stable' target is like 'pypi' except that it doesn\'t tag the build as
 an unstable build. IOW, it publishes a stable release.
 
 
@@ -99,21 +99,24 @@ clean: clean_develop clean_sdist clean_pypi
 
 
 .PHONY: _check_venv
+# This checks that we are in a virtualenv and that the actual python command is in
+# a virtualenv, not one outside of it.
 _check_venv:
-	@$(python) -c 'import sys; sys.exit( int( not hasattr(sys, "real_prefix") ) )' \
-		|| ( echo "$(red)A virtualenv must be active.$(normal)" ; false )
+	@[ "$$VIRTUAL_ENV" != "" ] || (printf "$(red)A virtualenv must be active.$(normal)\n" >&2 ; false)
+	@$(python) -c 'import sys, os; sys.exit(int(sys.prefix != os.environ["VIRTUAL_ENV"]))' \
+		|| ( printf "$(red)Must be running a python interpreter that is in the current virtualenv.$(normal)\n" >&2 ; false )
 
 
 .PHONY: _check_clean_working_copy
 _check_clean_working_copy:
 	@echo "$(green)Checking if your working copy is clean ...$(normal)"
 	@git diff --exit-code > /dev/null \
-		|| ( echo "$(red)Your working copy looks dirty.$(normal)" ; false )
+		|| ( echo "$(red)Your working copy looks dirty.$(normal)" >&2 ; false )
 	@git diff --cached --exit-code > /dev/null \
-		|| ( echo "$(red)Your index looks dirty.$(normal)" ; false )
+		|| ( echo "$(red)Your index looks dirty.$(normal)" >&2 ; false )
 	@test -z "$$(git ls-files --other --exclude-standard --directory)" \
-		|| ( echo "$(red)You have are untracked files:$(normal)" \
-			; git ls-files --other --exclude-standard --directory \
+		|| ( echo "$(red)You have are untracked files:$(normal)" >&2 \
+			; git ls-files --other --exclude-standard --directory >&2 \
 			; false )
 
 
@@ -121,4 +124,4 @@ _check_clean_working_copy:
 _check_running_on_jenkins:
 	@echo "$(green)Checking if running on Jenkins ...$(normal)"
 	test -n "$$BUILD_NUMBER" \
-		|| ( echo "$(red)This target should only be invoked on Jenkins.$(normal)" ; false )
+		|| ( echo "$(red)This target should only be invoked on Jenkins.$(normal)" >&2 ; false )
